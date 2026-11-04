@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Premium Intersection Observer with Staggering
     const observerOptions = {
-        threshold: 0.15,
-        rootMargin: "0px 0px -80px 0px"
+        threshold: 0.05,
+        rootMargin: "0px 0px -20px 0px"
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -27,6 +27,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const animatedElements = document.querySelectorAll('.fade-in-scroll, .slide-left, .slide-right');
     animatedElements.forEach(el => observer.observe(el));
+
+    // Handle URL hash on load or change (e.g. #enterprise-software or #enterprise%20software)
+    const handleHash = () => {
+        if (!window.location.hash) return;
+        const rawHash = decodeURIComponent(window.location.hash.substring(1)).trim();
+        const normalizedId = rawHash.toLowerCase().replace(/\s+/g, '-');
+        const target = document.getElementById(rawHash) || document.getElementById(normalizedId);
+        if (target) {
+            target.classList.add('visible');
+            const parentFade = target.closest('.fade-in-scroll');
+            if (parentFade) parentFade.classList.add('visible');
+            setTimeout(() => {
+                const headerOffset = 90;
+                const elementPosition = target.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            }, 150);
+        }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
 
     // Form submission interaction
     const form = document.getElementById('contact-form');
